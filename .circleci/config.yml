@@ -12,7 +12,7 @@ jobs:
           command: |
             version="build-$CIRCLE_BUILD_NUM"
             echo $version
-            docker build -f AppCode/Dockerfile -t yashyb11/to-do-app:$version 
+            docker build -f AppCode/Dockerfile -t yashyb11/to-do-app:$version AppCode
             echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
             docker push yashyb11/to-do-app:$version
 
