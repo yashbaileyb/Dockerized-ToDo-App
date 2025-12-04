@@ -3,6 +3,6 @@ terraform {
     bucket = "yashyb-terraform-bucket"
     key    = "backend/ToDo-App.tfstate"
     region = "ap-south-1"
-    dynamodb_table = "DB-terraform"
+    dynamodb_table = "DynamoDB-terraform"
   }
 }
