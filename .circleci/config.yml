@@ -39,10 +39,10 @@ jobs:
             pwd
 
             echo "Updating manifest with tag: ${TAG}"
-        
+            git checkout deployment
             sed -i "s/build-.*/${TAG}/g" manifest/deployment.yaml
             cat manifest/deployment.yaml
-            git checkout deployment
+            
             git add manifest/deployment.yaml
             git commit -m "Update image tag to ${TAG}"
             git config credential.helper 'cache --timeout=120'
