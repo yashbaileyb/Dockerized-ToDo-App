@@ -40,7 +40,7 @@ jobs:
 
             echo "Updating manifest with tag: ${TAG}"
             git checkout deployment
-            sed -i "s|image: .*|image: yashyb11/to-do-app:$TAG|g" kube_manifest/manifest/deployment.yaml
+            sed -i "s|image: .*|image: yashyb11/to-do-app:$TAG|g" manifest/deployment.yaml
 
             cat manifest/deployment.yaml
             
