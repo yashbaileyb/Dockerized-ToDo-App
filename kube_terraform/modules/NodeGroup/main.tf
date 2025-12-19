@@ -27,7 +27,7 @@ resource "aws_eks_node_group" "node_group" {
     max_size = 2
 
     # Minimum number of worker nodes
-    min_size = 2
+    min_size = 1
   }
 
   # Type of Amazon Machine Image (AMI) associated with the EKS Node Group
@@ -53,5 +53,5 @@ resource "aws_eks_node_group" "node_group" {
   }
 
   # Kubernetes version
-  version = "1.27"
+  version = "1.32"
 }
