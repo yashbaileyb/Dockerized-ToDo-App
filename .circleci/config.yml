@@ -39,7 +39,7 @@ jobs:
             pwd
 
             echo "Updating manifest with tag: ${TAG}"
-            git checkout deployment
+            git checkout -b deployment
             sed -i "s|image: .*|image: yashyb11/to-do-app:$TAG|g" manifest/deployment.yaml
 
             cat manifest/deployment.yaml
