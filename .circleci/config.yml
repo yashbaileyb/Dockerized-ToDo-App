@@ -11,11 +11,7 @@ jobs:
       - run:
           name: Build and Push Docker Image
           command: |
-            # Generate ONE immutable tag for entire workflow
             VERSION="build-${CIRCLE_WORKFLOW_ID:0:7}"
-            echo "Docker image tag: ${VERSION}"
-
-            # Save tag for next job
             echo "${VERSION}" > image_tag.txt
 
             docker build -f AppCode/Dockerfile \
@@ -38,12 +34,12 @@ jobs:
       - checkout
 
       - attach_workspace:
-          at: /workspace
+          at: ~/project
 
       - run:
           name: Update Kubernetes Deployment Manifest
           command: |
-            TAG=$(cat /workspace/image_tag.txt)
+            TAG=$(cat ~/project/image_tag.txt)
             echo "Using image tag: ${TAG}"
 
             git config --global user.email "yashbaile19@gmail.com"
@@ -51,17 +47,12 @@ jobs:
 
             cd kube_manifest
 
-            # Checkout deployment branch (or create if missing)
             git checkout deployment || git checkout -b deployment
 
-            # Update image tag in manifest
             sed -i "s|image: .*|image: yashyb11/to-do-app:${TAG}|g" manifest/deployment.yaml
 
-            echo "Updated deployment.yaml:"
-            cat manifest/deployment.yaml
-
             git add manifest/deployment.yaml
-            git commit -m "Update image tag to ${TAG}" || echo "No changes to commit"
+            git commit -m "Update image tag to ${TAG}" || echo "No changes"
 
             git remote set-url origin https://yashbaileyb:${GITHUB_TOKEN}@github.com/yashbaileyb/Dockerized-ToDo-App.git
             git push origin deployment
