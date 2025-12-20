@@ -7,11 +7,16 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+
       - run:
           name: Build and Push Docker Image
           command: |
-            VERSION="build-${CIRCLE_BUILD_NUM}"
-            echo "Building image version: ${VERSION}"
+            # Generate ONE immutable tag for entire workflow
+            VERSION="build-${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "Docker image tag: ${VERSION}"
+
+            # Save tag for next job
+            echo "${VERSION}" > image_tag.txt
 
             docker build -f AppCode/Dockerfile \
               -t yashyb11/to-do-app:${VERSION} AppCode
@@ -21,35 +26,45 @@ jobs:
 
             docker push yashyb11/to-do-app:${VERSION}
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - image_tag.txt
+
   update_manifest:
     docker:
       - image: cimg/base:2023.06
     steps:
       - checkout
-      - setup_remote_docker
+
+      - attach_workspace:
+          at: /workspace
+
       - run:
-          name: Update Kubernetes Manifest
+          name: Update Kubernetes Deployment Manifest
           command: |
-            TAG="build-${CIRCLE_BUILD_NUM}"
+            TAG=$(cat /workspace/image_tag.txt)
+            echo "Using image tag: ${TAG}"
 
             git config --global user.email "yashbaile19@gmail.com"
             git config --global user.name "yashbaileyb"
 
             cd kube_manifest
-            pwd
 
-            echo "Updating manifest with tag: ${TAG}"
-            git checkout -b deployment
-            sed -i "s|image: .*|image: yashyb11/to-do-app:$TAG|g" manifest/deployment.yaml
+            # Checkout deployment branch (or create if missing)
+            git checkout deployment || git checkout -b deployment
 
+            # Update image tag in manifest
+            sed -i "s|image: .*|image: yashyb11/to-do-app:${TAG}|g" manifest/deployment.yaml
+
+            echo "Updated deployment.yaml:"
             cat manifest/deployment.yaml
-            
+
             git add manifest/deployment.yaml
-            git commit -m "Update image tag to ${TAG}"
-            git config credential.helper 'cache --timeout=120'
+            git commit -m "Update image tag to ${TAG}" || echo "No changes to commit"
+
             git remote set-url origin https://yashbaileyb:${GITHUB_TOKEN}@github.com/yashbaileyb/Dockerized-ToDo-App.git
             git push origin deployment
-
 
 workflows:
   GitOpsflow:
