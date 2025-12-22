@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: yashyb11/to-do-app:build-98777c4
+        image: yashyb11/to-do-app:build-70968dc
         ports:
         - containerPort: 80
